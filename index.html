@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Har du spurt Claude?</title>
+    <meta name="description" content="Har du spurt Claude? Send denne lenken til noen som burde ha spurt Claude selv.">
+    <meta property="og:title" content="Har du spurt Claude?">
+    <meta property="og:description" content="Noen har et spørsmål til deg... eller kanskje til Claude.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Styrene+A:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Opprettelses-UI -->
+    <div id="create-view">
+        <div class="create-container">
+            <div class="create-welcome">
+                <svg class="spark-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 2L16 30M2 16L30 16M5.86 5.86L26.14 26.14M26.14 5.86L5.86 26.14" stroke="#D97757" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="3" fill="#D97757"/>
+                </svg>
+                <h1>Har du spurt Claude?</h1>
+            </div>
+            <p class="subtitle">Lag en lenke som viser noen at de burde ha spurt Claude selv.</p>
+
+            <div class="create-input-box">
+                <textarea id="prompt-input" placeholder="Skriv inn spørsmålet her..." rows="2"></textarea>
+                <div class="create-input-footer">
+                    <span class="hint-text">Enter for å lage lenke</span>
+                    <button id="generate-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="link-result" class="link-result hidden">
+                <div class="link-box">
+                    <input id="link-output" type="text" readonly>
+                    <button id="copy-btn">Kopier</button>
+                </div>
+                <span id="copy-feedback" class="copy-feedback"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animasjons-UI (mock Claude) -->
+    <div id="animation-view" class="hidden">
+        <div class="claude-mock">
+            <!-- Sidebar -->
+            <div class="claude-sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">Claude</span>
+                </div>
+                <div class="sidebar-nav">
+                    <div class="nav-item active">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>New chat</span>
+                    </div>
+                    <div class="nav-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span>Search</span>
+                    </div>
+                </div>
+                <div class="sidebar-section-label">Recents</div>
+                <div class="sidebar-recents">
+                    <div class="recent-item">Hjelp med JavaScript</div>
+                    <div class="recent-item">Forklare async/await</div>
+                    <div class="recent-item">CSS Grid layout</div>
+                    <div class="recent-item">React hooks guide</div>
+                    <div class="recent-item">API design patterns</div>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <div class="claude-main">
+                <div class="claude-body">
+                    <div class="claude-welcome">
+                        <svg class="spark-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 2L16 30M2 16L30 16M5.86 5.86L26.14 26.14M26.14 5.86L5.86 26.14" stroke="#D97757" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="16" cy="16" r="3" fill="#D97757"/>
+                        </svg>
+                        <p class="welcome-text">How can I help you today?</p>
+                    </div>
+                </div>
+                <div class="claude-input-area">
+                    <div class="claude-input-wrapper" id="input-wrapper">
+                        <div class="input-top-row">
+                            <div id="mock-input" class="mock-input">
+                                <span id="typed-text"></span><span id="input-cursor" class="input-cursor hidden">|</span>
+                                <span id="placeholder-text" class="placeholder-text">How can I help you today?</span>
+                            </div>
+                        </div>
+                        <div class="input-bottom-row">
+                            <div class="input-left-actions">
+                                <button class="icon-btn plus-btn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                </button>
+                            </div>
+                            <div class="input-right-actions">
+                                <span class="model-selector">Sonnet 4.6</span>
+                                <span class="model-tag">Extended</span>
+                                <button id="mock-send-btn" class="send-btn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="quick-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Code</button>
+                        <button class="quick-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Write</button>
+                        <button class="quick-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Learn</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fake cursor -->
+        <div id="fake-cursor" class="fake-cursor">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M3 2L3 17L7.5 12.5L12.5 12.5L3 2Z" fill="white" stroke="black" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+        </div>
+
+        <!-- Overgang til redirect -->
+        <div id="redirect-overlay" class="redirect-overlay hidden">
+            <div class="redirect-content">
+                <svg class="spark-icon large" width="48" height="48" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 2L16 30M2 16L30 16M5.86 5.86L26.14 26.14M26.14 5.86L5.86 26.14" stroke="#D97757" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="16" cy="16" r="3" fill="#D97757"/>
+                </svg>
+                <p>Neste gang — spør Claude selv!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
