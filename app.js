@@ -1,11 +1,26 @@
 (() => {
+    // Support both new base64 format (?p=) and legacy plain text (?q=)
     const params = new URLSearchParams(window.location.search);
-    const query = params.get('q');
+    const encoded = params.get('p');
+    const legacy = params.get('q');
+    const query = encoded ? decodePrompt(encoded) : legacy;
 
     if (query) {
         startAnimation(query);
     } else {
         setupCreateView();
+    }
+
+    function encodePrompt(text) {
+        return btoa(unescape(encodeURIComponent(text)));
+    }
+
+    function decodePrompt(encoded) {
+        try {
+            return decodeURIComponent(escape(atob(encoded)));
+        } catch {
+            return null;
+        }
     }
 
     function setupCreateView() {
@@ -36,7 +51,7 @@
                 input.focus();
                 return;
             }
-            const url = `${window.location.origin}${window.location.pathname}?q=${encodeURIComponent(prompt)}`;
+            const url = `${window.location.origin}${window.location.pathname}?p=${encodePrompt(prompt)}`;
             linkOutput.value = url;
             linkResult.classList.remove('hidden');
             linkOutput.select();
